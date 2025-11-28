@@ -157,11 +157,11 @@ int main(int argc, char** argv) {
         ImGui::Begin("Meshes", nullptr, window_flags);
         
     for (size_t i = 0; i < objFiles.size(); ++i) {
-      std::string buttonLabel = "Load " + fs::path(objFiles[i]).filename().string();
+      std::string buttonLabel = fs::path(objFiles[i]).filename().stem().string();
   
       if (ImGui::Button(buttonLabel.c_str())) {
             Mesh newMesh = loadOBJ(objFiles[i], "../assets/textures/default.png"); // only load on click
-            newMesh.name = fs::path(objFiles[i]).filename().string();
+            newMesh.name = fs::path(objFiles[i]).filename().stem().string();
             meshes.push_back(newMesh);  
       }       
     }
@@ -241,12 +241,14 @@ if (ImGui::Button("Change Texture")) {
         // Create default config (you don't need to fill anything manually)
         IGFD::FileDialogConfig cfg;
 
+        cfg.path = "../assets/textures",
+
         // Open the dialog
         ImGuiFileDialog::Instance()->OpenDialog(
             "ChooseFileDlgKey",       // Dialog ID
             "Choose Texture",         // Dialog title
             ".png,.jpg,.jpeg",        // File filters
-            cfg                        // default config
+            cfg// default config
         );
     }
 
