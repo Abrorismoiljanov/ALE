@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Project name and version
-project(ALE VERSION 1.0 LANGUAGES CXX)
+project(ALE VERSION 1.0 LANGUAGES C CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -26,10 +26,14 @@ include_directories(include)
 include_directories(imgui imgui/backends)
 
 # Add source files
-file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES ./src/*.cpp)
 
-# Create executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SOURCES})
+
+set(TINYFD_SOURCES src/tinyfiledialogs.c)
+set_source_files_properties(${TINYFD_SOURCES} PROPERTIES LANGUAGE C)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SOURCES} ${TINYFD_SOURCES})
+
 
 target_link_libraries(
     ${PROJECT_NAME}

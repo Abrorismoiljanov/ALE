@@ -14,13 +14,17 @@ file(REMOVE_RECURSE
   "CMakeFiles/ALE.dir/imgui/imgui_tables.cpp.o.d"
   "CMakeFiles/ALE.dir/imgui/imgui_widgets.cpp.o"
   "CMakeFiles/ALE.dir/imgui/imgui_widgets.cpp.o.d"
+  "CMakeFiles/ALE.dir/src/ImGuiFileDialog.cpp.o"
+  "CMakeFiles/ALE.dir/src/ImGuiFileDialog.cpp.o.d"
   "CMakeFiles/ALE.dir/src/main.cpp.o"
   "CMakeFiles/ALE.dir/src/main.cpp.o.d"
   "CMakeFiles/ALE.dir/src/stb_image.cpp.o"
   "CMakeFiles/ALE.dir/src/stb_image.cpp.o.d"
+  "CMakeFiles/ALE.dir/src/tinyfiledialogs.c.o"
+  "CMakeFiles/ALE.dir/src/tinyfiledialogs.c.o.d"
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
+foreach(lang C CXX)
   include(CMakeFiles/ALE.dir/cmake_clean_${lang}.cmake OPTIONAL)
 endforeach()

@@ -7,15 +7,36 @@
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
-#include <filesystem>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <vector>
 
+extern "C" {
+    #include "tinyfiledialogs.h"
+}
+#include "ImGuiFileDialog.h"
 #include "selection.h"
 #include "stb_image.h"
 #include "event.h"
+#include "filecheck.h"
+
+
+std::string OpenFileDialog() {
+    const char* file = tinyfd_openFileDialog(
+        "Select Texture",
+        "",
+        3,
+        (const char*[]){"*.png","*.jpg","*.jpeg"},
+        "Image files",
+        0
+    );
+    if (file) return std::string(file);
+    return std::string();
+}
+
+
+static std::vector<std::string> objFiles = GetOBJFiles("../assets/models/");
 
 bool InputTextStd(const char* label, std::string& str, ImGuiInputTextFlags flags = 0)
 {
@@ -52,7 +73,7 @@ int main(int argc, char** argv) {
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
-
+    
     // Initialize GLEW
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
@@ -79,9 +100,6 @@ int main(int argc, char** argv) {
     Mesh* selectedmesh = nullptr;
     
 
-    // -------------------------
-    // Setup Dear ImGui
-    // -------------------------
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -137,22 +155,18 @@ int main(int argc, char** argv) {
         
         ImGui::Begin("Meshes", nullptr, window_flags);
         
-        InputTextStd("File path to mesh", objpath);
-        InputTextStd("texture path", texturepath);
-        
-        if (!std::filesystem::exists(objpath)) {
-            ImGui::TextColored(ImVec4(1,0,0,1), "Error: OBJ file not found!");
-        }else if (!std::filesystem::exists(texturepath)) {
-            ImGui::TextColored(ImVec4(1,0,0,1), "Error: Texture file not found!");
-        } else {
-            if (ImGui::Button("Add Model")){
-            Mesh model = loadOBJ(objpath, texturepath);
-            meshes.push_back(model);
-        } 
-        }
-       
+    for (size_t i = 0; i < objFiles.size(); ++i) {
+      std::string buttonLabel = "Load " + fs::path(objFiles[i]).filename().string();
+  
+      if (ImGui::Button(buttonLabel.c_str())) {
+            Mesh newMesh = loadOBJ(objFiles[i], "../assets/textures/default.png"); // only load on click
+            newMesh.name = fs::path(objFiles[i]).filename().string();
+            meshes.push_back(newMesh);  
+      }       
+    }
+      
         ImGui::End();
-
+        
         ImGui::SetNextWindowPos(ImVec2(1700, 0), ImGuiCond_Always); // fixed position
         ImGui::SetNextWindowSize(ImVec2(200, 540), ImGuiCond_Always); // fixed sizev
 
@@ -206,6 +220,8 @@ int main(int argc, char** argv) {
                 selectedmesh->name = std::string(buffer); // Save back to the mesh
             }
 
+ 
+
             if (ImGui::DragFloat("X##", &x, 0.1f)) selectedmesh->SetPosX(x);
             if (ImGui::DragFloat("Y##", &y, 0.1f)) selectedmesh->SetPosY(y);
             if (ImGui::DragFloat("Z##", &z, 0.1f)) selectedmesh->SetPosZ(z);
@@ -218,6 +234,35 @@ int main(int argc, char** argv) {
             if (ImGui::DragFloat("Scale Y##", &sy, 0.1f)) selectedmesh->SetScaleY(sy);
             if (ImGui::DragFloat("Scale Z##", &sz, 0.1f)) selectedmesh->SetScaleZ(sz);
  
+if (ImGui::Button("Change Texture")) {
+        // Create default config (you don't need to fill anything manually)
+        IGFD::FileDialogConfig cfg;
+
+        // Open the dialog
+        ImGuiFileDialog::Instance()->OpenDialog(
+            "ChooseFileDlgKey",       // Dialog ID
+            "Choose Texture",         // Dialog title
+            ".png,.jpg,.jpeg",        // File filters
+            cfg                        // default config
+        );
+    }
+
+    // Check if dialog was closed and file was selected
+    if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+
+            if (!filePathName.empty()) {
+                selectedmesh->SetTexture(filePathName.c_str());
+            }
+        }
+
+        // Always close the dialog after displaying it
+        ImGuiFileDialog::Instance()->Close();
+    }
+
+
+
         }
     
         ImGui::End();

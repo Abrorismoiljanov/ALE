@@ -1,3 +1,3 @@
-/home/abror/game_projects/ALE/build/CMakeFiles/ALE.dir
-/home/abror/game_projects/ALE/build/CMakeFiles/edit_cache.dir
-/home/abror/game_projects/ALE/build/CMakeFiles/rebuild_cache.dir
+/home/abror/Project/ALE/build/CMakeFiles/ALE.dir
+/home/abror/Project/ALE/build/CMakeFiles/edit_cache.dir
+/home/abror/Project/ALE/build/CMakeFiles/rebuild_cache.dir
