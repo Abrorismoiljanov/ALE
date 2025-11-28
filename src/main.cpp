@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
 
     std::vector<Mesh> meshes;
-    Mesh* selectedmesh = nullptr;
+    int selectedIndex = -1;
     
 
     IMGUI_CHECKVERSION();
@@ -175,7 +175,7 @@ int main(int argc, char** argv) {
         for (size_t i = 0; i < meshes.size(); ++i) {
         Mesh& mesh = meshes[i];
  
-        bool isSelected = (&mesh == selectedmesh);
+        bool isSelected = (i == selectedIndex);
 
         if (isSelected) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 1.0f));        // normal color
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
 
         std::string buttonLabel = mesh.name + "##" + std::to_string(i);
         if (ImGui::Button(buttonLabel.c_str())) {
-            selectedmesh = &mesh;
+            selectedIndex = i;
         }
         if (isSelected) {
         ImGui::PopStyleColor(3); // pop the 3 colors we pushed
@@ -196,6 +196,8 @@ int main(int argc, char** argv) {
  
         ImGui::SetNextWindowPos(ImVec2(1700, 540), ImGuiCond_Always); // fixed position
         ImGui::SetNextWindowSize(ImVec2(200, 540), ImGuiCond_Always); // fixed sizev
+
+        Mesh* selectedmesh = (selectedIndex < meshes.size()) ? &meshes[selectedIndex] : nullptr;
 
         ImGui::Begin("Inspector", nullptr, window_flags);
         
