@@ -9,6 +9,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -262,8 +263,18 @@ if (ImGui::Button("Change Texture")) {
         // Always close the dialog after displaying it
         ImGuiFileDialog::Instance()->Close();
     }
-
-
+ if (ImGui::Button("Remove Mesh")) {
+        // Erase the mesh at selectedIndex
+        meshes.erase(meshes.begin() + selectedIndex);
+        // Reset selection
+        if (meshes.empty()) {
+            selectedIndex = -1;
+        } else {
+            // Clamp selectedIndex to valid range
+            selectedIndex = std::min(selectedIndex, (int)meshes.size() - 1);
+        }
+        selectedmesh = (selectedIndex >= 0) ? &meshes[selectedIndex] : nullptr;
+    }
 
         }
     
@@ -276,7 +287,17 @@ if (ImGui::Button("Change Texture")) {
         glViewport(0, 0, display_w, display_h);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = camera.GetProjectionMatrix(display_w, display_h);
-        
+       
+
+// Set uniforms
+glm::vec3 lightDir = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
+glm::vec3 lightColor = glm::vec3(1.0f);   // white light
+glm::vec3 ambientColor = glm::vec3(0.2f); // subtle ambient
+
+glUniform3fv(glGetUniformLocation(shaderProgram, "lightDir"), 1, glm::value_ptr(lightDir));
+glUniform3fv(glGetUniformLocation(shaderProgram, "lightColor"), 1, glm::value_ptr(lightColor));
+glUniform3fv(glGetUniformLocation(shaderProgram, "ambientColor"), 1, glm::value_ptr(ambientColor));
+
         for (auto& mesh : meshes) {
             mesh.Render(shaderProgram, view, projection);
         }
